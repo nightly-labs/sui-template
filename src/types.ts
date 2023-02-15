@@ -1,11 +1,20 @@
 import '@mysten/sui.js'
-import { PublicKey, Base64DataBuffer } from '@mysten/sui.js'
+import {
+  PublicKey,
+  SignableTransaction,
+  ExecuteTransactionRequestType,
+  SuiTransactionResponse
+} from '@mysten/sui.js'
 
 export interface WalletAdapter {
-  publicKey: PublicKey
+  publicKey: string
   connected: boolean
-  signTransaction: (transaction: Base64DataBuffer) => Promise<Uint8Array>
-  signAllTransactions: (transaction: Base64DataBuffer[]) => Promise<Uint8Array[]>
+  signAndExecuteTransaction: (
+    transaction: SignableTransaction,
+    options?: {
+      requestType?: ExecuteTransactionRequestType
+    }
+  ) => Promise<SuiTransactionResponse>
   connect: () => any
   disconnect: () => any
 }
@@ -18,13 +27,16 @@ export declare class Nightly {
 }
 
 export declare class SuiNightly {
-  publicKey: PublicKey
+  publicKey: string
   _onDisconnect: () => void
   private readonly _nightlyEventsMap
   constructor(eventMap: Map<string, (data: any) => any>)
-  connect(onDisconnect?: () => void, eagerConnect?: boolean): Promise<PublicKey>
+  connect(onDisconnect?: () => void, eagerConnect?: boolean): Promise<string>
   disconnect(): Promise<void>
-  signTransaction(tx: Base64DataBuffer): Promise<Uint8Array>
-  signAllTransactions(txs: Base64DataBuffer[]): Promise<Uint8Array[]>
-  signMessage(msg: string): Promise<Uint8Array>
+  signAndExecuteTransaction: (
+    transaction: SignableTransaction,
+    options?: {
+      requestType?: ExecuteTransactionRequestType
+    }
+  ) => Promise<SuiTransactionResponse>
 }
