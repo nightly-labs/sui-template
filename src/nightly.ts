@@ -1,8 +1,4 @@
-import {
-  publicKeyFromSerialized,
-  SignableTransaction,
-  ExecuteTransactionRequestType
-} from '@mysten/sui.js'
+import { SignableTransaction, ExecuteTransactionRequestType } from '@mysten/sui.js'
 import { SuiNightly, WalletAdapter } from './types'
 import { getSuiAddress } from './utils/utils'
 
