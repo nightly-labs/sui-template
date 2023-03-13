@@ -3,7 +3,8 @@ import Button from '@mui/material/Button'
 import { useState } from 'react'
 import { NightlyWalletAdapter } from './nightly'
 import './App.css'
-import { JsonRpcProvider, UnserializedSignableTransaction } from '@mysten/sui.js'
+import { devnetConnection, JsonRpcProvider, UnserializedSignableTransaction } from '@mysten/sui.js'
+import { Collection } from './Collection'
 
 export const DEFAULT_GAS_BUDGET = 10000
 export const SUI_TOKEN_ADDRESS = '0x2::sui::SUI'
@@ -12,9 +13,8 @@ const RECIPIENT = '0x5a1115abbde8f1c4e449ae0e27f6cec3a990ebd0'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
-  const sui = new JsonRpcProvider('https://fullnode.devnet.sui.io', {
-    faucetURL: 'https://faucet.devnet.sui.io/gas'
-  })
+
+  const sui = new JsonRpcProvider(devnetConnection)
   const getAirdrop = async (address: string) => {
     try {
       if (!userAddress) return
@@ -71,17 +71,17 @@ function App() {
               data: {
                 inputCoins: inputCoins,
                 recipients: [RECIPIENT],
-                amounts: [10000000],
+                amounts: [100000],
                 gasBudget: DEFAULT_GAS_BUDGET
               }
             }
 
             const signetTxParse = await NightlySui.signAndExecuteTransaction(tmpTransfer)
-            // @ts-expect-error
-            id = signetTxParse?.certificate.transactionDigest
+            const id = signetTxParse?.certificate.transactionDigest
           }}>
           Send test 0.001 SUI
         </Button>
+        <Collection recipient={userAddress} NightlySui={NightlySui} />
         {/* <Button
           variant='contained'
           style={{ margin: 10 }}
