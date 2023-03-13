@@ -20,7 +20,7 @@ export interface WalletAdapter {
 }
 
 export declare class Nightly {
-  aptos: SuiNightly
+  sui: SuiNightly
   private readonly _nightlyEventsMap
   constructor()
   invalidate(): void
