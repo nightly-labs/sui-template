@@ -18,6 +18,7 @@ interface ICollection {
 export const Collection: React.FC<ICollection> = props => {
   const sui = new JsonRpcProvider(devnetConnection)
   const DEV_PACKAGE_MOVE_NFT_ADDRESS = '0x2'
+  const randomNumber = Math.floor(Math.random() * 100000)
   const transaction: UnserializedSignableTransaction = {
     kind: 'moveCall',
     data: {
@@ -26,7 +27,7 @@ export const Collection: React.FC<ICollection> = props => {
       function: 'mint',
       typeArguments: [],
       arguments: [
-        'Nightly NFT',
+        `Nightly NFT #${randomNumber}`,
         'Created by Nightly for testing (https://wallet.nightly.app/)',
         fenecImages[Math.floor(Math.random() * fenecImages.length)]
       ],
