@@ -12,5 +12,5 @@ export const getSuiAddress = (publicKeyBase58: string) => {
     'ED25519',
     convertBase58toBase64(publicKeyBase58)
   ).toSuiAddress()
-  return '0x' + address
+  return address
 }

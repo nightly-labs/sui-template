@@ -1,20 +1,19 @@
 import '@mysten/sui.js'
 import {
-  PublicKey,
-  SignableTransaction,
   ExecuteTransactionRequestType,
-  SuiTransactionResponse
+  SuiTransactionBlockResponseOptions,
+  TransactionBlock,
+  SuiTransactionBlockResponse
 } from '@mysten/sui.js'
 
 export interface WalletAdapter {
   publicKey: string
   connected: boolean
   signAndExecuteTransaction: (
-    transaction: SignableTransaction,
-    options?: {
-      requestType?: ExecuteTransactionRequestType
-    }
-  ) => Promise<SuiTransactionResponse>
+    transaction: TransactionBlock,
+    requestType?: ExecuteTransactionRequestType,
+    options?: SuiTransactionBlockResponseOptions
+  ) => Promise<SuiTransactionBlockResponse>
   connect: () => any
   disconnect: () => any
 }
@@ -34,9 +33,8 @@ export declare class SuiNightly {
   connect(onDisconnect?: () => void, eagerConnect?: boolean): Promise<string>
   disconnect(): Promise<void>
   signAndExecuteTransaction: (
-    transaction: SignableTransaction,
-    options?: {
-      requestType?: ExecuteTransactionRequestType
-    }
-  ) => Promise<SuiTransactionResponse>
+    transaction: TransactionBlock,
+    requestType?: ExecuteTransactionRequestType,
+    options?: SuiTransactionBlockResponseOptions
+  ) => Promise<SuiTransactionBlockResponse>
 }

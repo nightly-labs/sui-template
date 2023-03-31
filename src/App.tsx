@@ -3,13 +3,13 @@ import Button from '@mui/material/Button'
 import { useState } from 'react'
 import { NightlyWalletAdapter } from './nightly'
 import './App.css'
-import { devnetConnection, JsonRpcProvider, UnserializedSignableTransaction } from '@mysten/sui.js'
+import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
 import { Collection } from './Collection'
 
 export const DEFAULT_GAS_BUDGET = 10000
 export const SUI_TOKEN_ADDRESS = '0x2::sui::SUI'
 const NightlySui = new NightlyWalletAdapter()
-const RECIPIENT = '0x5a1115abbde8f1c4e449ae0e27f6cec3a990ebd0'
+const RECIPIENT = '0xde06e7ab60f89597530356efddda07b8146245063e5de5e18f646274d15a331d'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
@@ -62,22 +62,12 @@ function App() {
           onClick={async () => {
             if (!userAddress) return
 
-            const object = await sui.getAllCoins(userAddress)
-            const inputCoins = object.data
-              .filter(item => item.coinType === SUI_TOKEN_ADDRESS)
-              .map(item => item.coinObjectId)
-            const tmpTransfer: UnserializedSignableTransaction = {
-              kind: 'paySui',
-              data: {
-                inputCoins: inputCoins,
-                recipients: [RECIPIENT],
-                amounts: [100000],
-                gasBudget: DEFAULT_GAS_BUDGET
-              }
-            }
-
-            const signetTxParse = await NightlySui.signAndExecuteTransaction(tmpTransfer)
-            const id = signetTxParse?.certificate.transactionDigest
+            const object = await sui.getAllCoins({ owner: userAddress })
+            const tx = new TransactionBlock()
+            const coin = tx.splitCoins(tx.gas, [tx.pure(100000)])
+            tx.transferObjects([coin], tx.pure(RECIPIENT))
+            const signetTxParse = await NightlySui.signAndExecuteTransaction(tx)
+            const id = signetTxParse.digest
           }}>
           Send test 0.001 SUI
         </Button>
@@ -90,7 +80,6 @@ function App() {
           }}>
           Send test 1000 SuiCoin x2
         </Button> */}
-        {/* ssds */}
 
         {/* <Button
           variant='contained'

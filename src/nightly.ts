@@ -1,4 +1,8 @@
-import { SignableTransaction, ExecuteTransactionRequestType } from '@mysten/sui.js'
+import {
+  ExecuteTransactionRequestType,
+  SuiTransactionBlockResponseOptions,
+  TransactionBlock
+} from '@mysten/sui.js'
 import { SuiNightly, WalletAdapter } from './types'
 import { getSuiAddress } from './utils/utils'
 
@@ -27,12 +31,11 @@ export class NightlyWalletAdapter implements WalletAdapter {
   }
 
   async signAndExecuteTransaction(
-    transaction: SignableTransaction,
-    options?: {
-      requestType?: ExecuteTransactionRequestType
-    }
+    transaction: TransactionBlock,
+    requestType?: ExecuteTransactionRequestType,
+    options?: SuiTransactionBlockResponseOptions
   ) {
-    return await this._provider.signAndExecuteTransaction(transaction, options)
+    return await this._provider.signAndExecuteTransaction(transaction, requestType, options)
   }
 
   async connect(onDisconnect?: () => void, eager?: boolean) {
