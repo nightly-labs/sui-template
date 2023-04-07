@@ -32,7 +32,7 @@ export declare class SuiNightly {
   constructor(eventMap: Map<string, (data: any) => any>)
   connect(onDisconnect?: () => void, eagerConnect?: boolean): Promise<string>
   disconnect(): Promise<void>
-  signAndExecuteTransaction: (
+  signAndExecuteTransactionBlock: (
     transaction: TransactionBlock,
     requestType?: ExecuteTransactionRequestType,
     options?: SuiTransactionBlockResponseOptions

@@ -35,7 +35,7 @@ export class NightlyWalletAdapter implements WalletAdapter {
     requestType?: ExecuteTransactionRequestType,
     options?: SuiTransactionBlockResponseOptions
   ) {
-    return await this._provider.signAndExecuteTransaction(transaction, requestType, options)
+    return await this._provider.signAndExecuteTransactionBlock(transaction, requestType, options)
   }
 
   async connect(onDisconnect?: () => void, eager?: boolean) {
