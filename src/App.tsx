@@ -3,9 +3,9 @@ import Button from '@mui/material/Button'
 import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
 import { useState } from 'react'
 import './App.css'
-import { Collection } from './Collection'
 import { RECIPIENT } from './utils/static'
 import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
+import { Collection } from './Collection'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
@@ -67,7 +67,7 @@ function App() {
           }}>
           Send test 0.001 SUI
         </Button>
-        {/* <Collection recipient={userAddress} NightlySui={NightlySui} /> */}
+        <Collection recipient={userAddress} NightlySui={NightlySui} />
         {/* <Button
           variant='contained'
           style={{ margin: 10 }}
