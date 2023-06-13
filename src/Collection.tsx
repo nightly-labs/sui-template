@@ -5,6 +5,7 @@ import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
 interface ICollection {
   recipient: string
   NightlySui: NightlyWalletAdapter
+  userAddress: string
 }
 
 export const Collection: React.FC<ICollection> = props => {
@@ -13,8 +14,9 @@ export const Collection: React.FC<ICollection> = props => {
 
   const signAndSend = async () => {
     const transactionBlock = new TransactionBlock()
+    transactionBlock.setSenderIfNotSet(props.userAddress)
     transactionBlock.moveCall({
-      target: `${DEV_PACKAGE_MOVE_NFT_ADDRESS}::devnet::mint`,
+      target: `${DEV_PACKAGE_MOVE_NFT_ADDRESS}::devnet_nft::mint`,
       typeArguments: [],
       arguments: [
         transactionBlock.pure('some name'),
