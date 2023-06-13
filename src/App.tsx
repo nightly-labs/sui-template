@@ -1,25 +1,21 @@
 import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
-import { useState } from 'react'
-import { NightlyWalletAdapter } from './nightly'
-import './App.css'
 import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { useState } from 'react'
+import './App.css'
+import { RECIPIENT } from './utils/static'
+import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
 import { Collection } from './Collection'
-
-export const DEFAULT_GAS_BUDGET = 10000
-export const SUI_TOKEN_ADDRESS = '0x2::sui::SUI'
-const NightlySui = new NightlyWalletAdapter()
-const RECIPIENT = '0xde06e7ab60f89597530356efddda07b8146245063e5de5e18f646274d15a331d'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
-
+  const NightlySui = new NightlyWalletAdapter()
   const sui = new JsonRpcProvider(devnetConnection)
+
   const getAirdrop = async (address: string) => {
     try {
       if (!userAddress) return
-      const airdrop = await sui.requestSuiFromFaucet(address)
-      console.log(airdrop)
+      await sui.requestSuiFromFaucet(address)
     } catch (e) {
       console.log('airdrop error')
       console.log(e)
@@ -39,7 +35,6 @@ function App() {
             Open documentation
           </Button>
         </div> */}
-
         <Typography>{userAddress ? `Hello, ${userAddress}` : 'Hello, stranger'}</Typography>
         <Button
           variant='contained'
@@ -49,10 +44,12 @@ function App() {
               console.log('Trigger disconnect Sui')
               setUserAddress(undefined)
             })
-            console.log(value)
             setUserAddress(value)
-            await getAirdrop(userAddress)
-            // console.log(value.toString())
+            try {
+              await getAirdrop(userAddress)
+            } catch {
+              console.log('failed to get airdrop')
+            }
           }}>
           Connect Sui
         </Button>
@@ -61,17 +58,16 @@ function App() {
           style={{ margin: 10 }}
           onClick={async () => {
             if (!userAddress) return
-
-            const object = await sui.getAllCoins({ owner: userAddress })
-            const tx = new TransactionBlock()
-            const coin = tx.splitCoins(tx.gas, [tx.pure(100000)])
-            tx.transferObjects([coin], tx.pure(RECIPIENT))
-            const signetTxParse = await NightlySui.signAndExecuteTransaction(tx)
-            const id = signetTxParse.digest
+            const transactionBlock = new TransactionBlock()
+            const coin = transactionBlock.splitCoins(transactionBlock.gas, [
+              transactionBlock.pure(100)
+            ])
+            transactionBlock.transferObjects([coin], transactionBlock.pure(RECIPIENT))
+            await NightlySui.signAndExecuteTransactionBlock({ transactionBlock })
           }}>
           Send test 0.001 SUI
         </Button>
-        <Collection recipient={userAddress} NightlySui={NightlySui} />
+        {/* <Collection recipient={userAddress} NightlySui={NightlySui} userAddress={userAddress} /> */}
         {/* <Button
           variant='contained'
           style={{ margin: 10 }}
@@ -97,13 +93,13 @@ function App() {
           }}>
           Sign Message
         </Button> */}
-
         <Button
           variant='contained'
           color='secondary'
           style={{ margin: 10 }}
           onClick={async () => {
             await NightlySui.disconnect()
+            setUserAddress('')
           }}>
           Disconnect Sui
         </Button>
