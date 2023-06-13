@@ -1,10 +1,9 @@
 import {
-  ExecuteTransactionRequestType,
-  SuiTransactionBlockResponseOptions,
-  TransactionBlock
+  type ExecuteTransactionRequestType,
+  type SuiTransactionBlockResponseOptions,
+  type TransactionBlock
 } from '@mysten/sui.js'
-import { SuiNightly, WalletAdapter } from './types'
-import { getSuiAddress } from './utils/utils'
+import { WalletAdapter, type SuiNightly } from './types'
 
 export class NightlyWalletAdapter implements WalletAdapter {
   _publicKey: string
@@ -30,21 +29,20 @@ export class NightlyWalletAdapter implements WalletAdapter {
     return this._publicKey
   }
 
-  async signAndExecuteTransaction(
-    transaction: TransactionBlock,
-    requestType?: ExecuteTransactionRequestType,
+  async signAndExecuteTransactionBlock(input: {
+    transactionBlock: TransactionBlock
+    requestType?: ExecuteTransactionRequestType
     options?: SuiTransactionBlockResponseOptions
-  ) {
-    return await this._provider.signAndExecuteTransaction(transaction, requestType, options)
+  }) {
+    return await this._provider.signAndExecuteTransactionBlock(input)
   }
 
   async connect(onDisconnect?: () => void, eager?: boolean) {
     try {
       const pk = await this._provider.connect(onDisconnect, eager)
-      console.log(pk)
-      this._publicKey = getSuiAddress(pk)
+      this._publicKey = pk.accounts[0].address
       this._connected = true
-      return getSuiAddress(pk)
+      return pk.accounts[0].address
     } catch (error) {
       console.log(error)
       throw new Error('User refused connection')
