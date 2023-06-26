@@ -1,11 +1,13 @@
 import { Button } from '@mui/material'
 import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { SUI_DEVNET_CHAIN, WalletAccount } from '@mysten/wallet-standard'
 import { NightlyWalletAdapter } from './nightly'
 import { fenecImages } from './utils/const'
 
 interface ICollection {
   recipient: string
   NightlySui: NightlyWalletAdapter
+  activeAccount: WalletAccount
 }
 
 export const Collection: React.FC<ICollection> = props => {
@@ -19,7 +21,7 @@ export const Collection: React.FC<ICollection> = props => {
       target: `${DEV_PACKAGE_MOVE_NFT_ADDRESS}::devnet_nft::mint`,
       typeArguments: [],
       arguments: [
-        tx.pure('some name'),
+        tx.pure('test'),
         tx.pure('some description'),
         tx.pure(
           'https://cdn.britannica.com/94/194294-138-B2CF7780/overview-capybara.jpg?w=800&h=450&c=crop'
@@ -42,7 +44,11 @@ export const Collection: React.FC<ICollection> = props => {
     //     gasBudget: DEFAULT_GAS_BUDGET
     //   }
     // }
-    const signetTxParse = await props.NightlySui.signAndExecuteTransaction(tx)
+    const signetTxParse = await props.NightlySui.signAndExecuteTransactionBlock({
+      transactionBlock: tx,
+      account: props.activeAccount,
+      chain: SUI_DEVNET_CHAIN
+    })
     const data = await sui.getTransactionBlock({ digest: signetTxParse.digest })
     console.log(data)
   }

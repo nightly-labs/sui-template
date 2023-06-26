@@ -1,17 +1,17 @@
 import {
-  ExecuteTransactionRequestType,
-  SuiTransactionBlockResponseOptions,
-  TransactionBlock
-} from '@mysten/sui.js'
+  SuiSignAndExecuteTransactionBlockInput,
+  SuiSignMessageInput,
+  WalletAccount
+} from '@mysten/wallet-standard'
 import { SuiNightly, WalletAdapter } from './types'
-import { getSuiAddress } from './utils/utils'
 
 export class NightlyWalletAdapter implements WalletAdapter {
-  _publicKey: string
+  _address: string
   _connected: boolean
+  activeAccount: WalletAccount
   constructor() {
     this._connected = false
-    this._publicKey = ''
+    this._address = ''
   }
 
   get connected() {
@@ -27,34 +27,40 @@ export class NightlyWalletAdapter implements WalletAdapter {
   }
 
   get publicKey() {
-    return this._publicKey
+    return this._address
   }
 
-  async signAndExecuteTransaction(
-    transaction: TransactionBlock,
-    requestType?: ExecuteTransactionRequestType,
-    options?: SuiTransactionBlockResponseOptions
-  ) {
-    return await this._provider.signAndExecuteTransaction(transaction, requestType, options)
+  async signAndExecuteTransactionBlock(inputs: SuiSignAndExecuteTransactionBlockInput) {
+    return await this._provider.signAndExecuteTransactionBlock(inputs)
   }
 
-  async connect(onDisconnect?: () => void, eager?: boolean) {
+  async connect() {
     try {
-      const pk = await this._provider.connect(onDisconnect, eager)
-      console.log(pk)
-      this._publicKey = getSuiAddress(pk)
+      const connectionAccounts = await this._provider.connect({})
+      this.activeAccount = connectionAccounts.accounts[0]
+      this._address = connectionAccounts.accounts[0].address
       this._connected = true
-      return getSuiAddress(pk)
+      return connectionAccounts
     } catch (error) {
       console.log(error)
       throw new Error('User refused connection')
     }
   }
 
+  async signMessage(input: SuiSignMessageInput) {
+    try {
+      const signature = await this._provider.signMessage(input)
+      return signature
+    } catch (error) {
+      console.log(error)
+      throw new Error('User refused sign message')
+    }
+  }
+
   async disconnect() {
-    if (this._publicKey) {
+    if (this._address) {
       await this._provider.disconnect()
-      this._publicKey = ''
+      this._address = ''
       this._connected = false
     }
   }

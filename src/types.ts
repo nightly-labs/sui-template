@@ -3,38 +3,33 @@ import {
   ExecuteTransactionRequestType,
   SuiTransactionBlockResponseOptions,
   TransactionBlock,
-  SuiTransactionBlockResponse
+  SuiTransactionBlockResponse,
+  SignedMessage
 } from '@mysten/sui.js'
+import {
+  StandardConnectInput,
+  SuiSignAndExecuteTransactionBlockInput,
+  SuiSignMessageInput,
+  WalletAccount
+} from '@mysten/wallet-standard'
 
-export interface WalletAdapter {
-  publicKey: string
+export interface WalletAdapter extends SuiNightly {
   connected: boolean
-  signAndExecuteTransaction: (
-    transaction: TransactionBlock,
-    requestType?: ExecuteTransactionRequestType,
-    options?: SuiTransactionBlockResponseOptions
-  ) => Promise<SuiTransactionBlockResponse>
-  connect: () => any
-  disconnect: () => any
 }
 
 export declare class Nightly {
   sui: SuiNightly
-  private readonly _nightlyEventsMap
   constructor()
   invalidate(): void
 }
 
 export declare class SuiNightly {
   publicKey: string
-  _onDisconnect: () => void
-  private readonly _nightlyEventsMap
   constructor(eventMap: Map<string, (data: any) => any>)
-  connect(onDisconnect?: () => void, eagerConnect?: boolean): Promise<string>
-  disconnect(): Promise<void>
-  signAndExecuteTransaction: (
-    transaction: TransactionBlock,
-    requestType?: ExecuteTransactionRequestType,
-    options?: SuiTransactionBlockResponseOptions
+  connect(input: StandardConnectInput): Promise<{ accounts: WalletAccount[] }>
+  signAndExecuteTransactionBlock: (
+    inputs: SuiSignAndExecuteTransactionBlockInput
   ) => Promise<SuiTransactionBlockResponse>
+  signMessage: (inputs: SuiSignMessageInput) => Promise<SignedMessage>
+  disconnect(): Promise<void>
 }
