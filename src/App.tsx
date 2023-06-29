@@ -70,7 +70,7 @@ function App() {
           }}>
           Send test 0.001 SUI
         </Button>
-        <Collection recipient={userAddress} NightlySui={NightlySui} activeAccount={activeAccount} />
+        {/* <Collection recipient={userAddress} NightlySui={NightlySui} activeAccount={activeAccount} /> */}
         {/* <Button
           variant='contained'
           style={{ margin: 10 }}
