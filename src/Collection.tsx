@@ -1,11 +1,12 @@
 import { Button } from '@mui/material'
 import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { SUI_DEVNET_CHAIN, WalletAccount } from '@mysten/wallet-standard'
 import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
 
 interface ICollection {
   recipient: string
   NightlySui: NightlyWalletAdapter
-  userAddress: string
+  activeAccount: WalletAccount
 }
 
 export const Collection: React.FC<ICollection> = props => {
@@ -14,7 +15,7 @@ export const Collection: React.FC<ICollection> = props => {
 
   const signAndSend = async () => {
     const transactionBlock = new TransactionBlock()
-    transactionBlock.setSenderIfNotSet(props.userAddress)
+    transactionBlock.setSenderIfNotSet(props.activeAccount.address)
     transactionBlock.moveCall({
       target: `${DEV_PACKAGE_MOVE_NFT_ADDRESS}::devnet_nft::mint`,
       typeArguments: [],
@@ -28,7 +29,9 @@ export const Collection: React.FC<ICollection> = props => {
     })
 
     const signetTxParse = await props.NightlySui.signAndExecuteTransactionBlock({
-      transactionBlock
+      transactionBlock: transactionBlock,
+      account: props.activeAccount,
+      chain: SUI_DEVNET_CHAIN
     })
     const data = await sui.getTransactionBlock({ digest: signetTxParse.digest })
     console.log(data.digest)

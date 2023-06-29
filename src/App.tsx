@@ -1,21 +1,23 @@
 import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
-import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { JsonRpcProvider, testnetConnection, TransactionBlock } from '@mysten/sui.js'
 import { useState } from 'react'
 import './App.css'
 import { RECIPIENT } from './utils/static'
 import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
 import { Collection } from './Collection'
+import { SUI_DEVNET_CHAIN, WalletAccount } from '@mysten/wallet-standard'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
+  const [activeAccount, setActiveAccount] = useState<WalletAccount | undefined>()
+  const sui = new JsonRpcProvider(testnetConnection)
   const NightlySui = new NightlyWalletAdapter()
-  const sui = new JsonRpcProvider(devnetConnection)
-
   const getAirdrop = async (address: string) => {
     try {
       if (!userAddress) return
-      await sui.requestSuiFromFaucet(address)
+      const airdrop = await sui.requestSuiFromFaucet(address)
+      console.log(airdrop)
     } catch (e) {
       console.log('airdrop error')
       console.log(e)
@@ -40,34 +42,35 @@ function App() {
           variant='contained'
           style={{ margin: 10 }}
           onClick={async () => {
-            const value = await NightlySui.connect(() => {
-              console.log('Trigger disconnect Sui')
-              setUserAddress(undefined)
-            })
-            setUserAddress(value)
-            try {
-              await getAirdrop(userAddress)
-            } catch {
-              console.log('failed to get airdrop')
-            }
+            const value = (await NightlySui.connect()).accounts
+            setActiveAccount(value[0])
+            setUserAddress(value[0].address)
+            await getAirdrop(userAddress)
+            // console.log(value.toString())
           }}>
-          Connect Sui
+          Connect Sui TESTNET
         </Button>
         <Button
           variant='contained'
           style={{ margin: 10 }}
           onClick={async () => {
             if (!userAddress) return
-            const transactionBlock = new TransactionBlock()
-            const coin = transactionBlock.splitCoins(transactionBlock.gas, [
-              transactionBlock.pure(100)
-            ])
-            transactionBlock.transferObjects([coin], transactionBlock.pure(RECIPIENT))
-            await NightlySui.signAndExecuteTransactionBlock({ transactionBlock })
+            // const object = await sui.getAllCoins({ owner: userAddress })
+            const tx = new TransactionBlock()
+            const coin = tx.splitCoins(tx.gas, [tx.pure(100000)])
+            tx.transferObjects([coin], tx.pure(RECIPIENT))
+            const signetTxParse = await NightlySui.signAndExecuteTransactionBlock({
+              transactionBlock: tx,
+              account: activeAccount,
+              chain: SUI_DEVNET_CHAIN
+            })
+            const id = signetTxParse.digest
+            console.log(id)
+            alert(`Transaction id: ${id}`)
           }}>
           Send test 0.001 SUI
         </Button>
-        {/* <Collection recipient={userAddress} NightlySui={NightlySui} userAddress={userAddress} /> */}
+        <Collection recipient={userAddress} NightlySui={NightlySui} activeAccount={activeAccount} />
         {/* <Button
           variant='contained'
           style={{ margin: 10 }}
@@ -77,7 +80,7 @@ function App() {
           Send test 1000 SuiCoin x2
         </Button> */}
 
-        {/* <Button
+        <Button
           variant='contained'
           color='primary'
           style={{ margin: 10 }}
@@ -88,11 +91,17 @@ function App() {
             }
             const messageToSign =
               'I like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtlesI like turtles I like turtlesI like turtlesI like turtles'
-            const signedMessage = await NightlySui.signMessage(messageToSign)
+            const messageBytes = new TextEncoder().encode(messageToSign)
+
+            const signedMessage = await NightlySui.signMessage({
+              message: messageBytes,
+              account: activeAccount
+            })
             console.log(signedMessage)
+            alert(`Signed message-> signature: ${signedMessage.signature}`)
           }}>
           Sign Message
-        </Button> */}
+        </Button>
         <Button
           variant='contained'
           color='secondary'
