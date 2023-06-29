@@ -1,20 +1,17 @@
 import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
-import { useState } from 'react'
-import { NightlyWalletAdapter } from './nightly'
-import './App.css'
 import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { useState } from 'react'
+import './App.css'
+import { RECIPIENT } from './utils/static'
+import { NightlyWalletAdapter } from './NightlyWalletAdapter/nightly'
 import { Collection } from './Collection'
 import { SUI_DEVNET_CHAIN, WalletAccount } from '@mysten/wallet-standard'
-
-export const DEFAULT_GAS_BUDGET = 10000
-export const SUI_TOKEN_ADDRESS = '0x2::sui::SUI'
-const NightlySui = new NightlyWalletAdapter()
-const RECIPIENT = '0xde06e7ab60f89597530356efddda07b8146245063e5de5e18f646274d15a331d'
 
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
   const [activeAccount, setActiveAccount] = useState<WalletAccount | undefined>()
+  const NightlySui = new NightlyWalletAdapter()
   const getAirdrop = async (address: string) => {
     try {
       if (!userAddress) return
@@ -105,13 +102,13 @@ function App() {
           }}>
           Sign Message
         </Button>
-
         <Button
           variant='contained'
           color='secondary'
           style={{ margin: 10 }}
           onClick={async () => {
             await NightlySui.disconnect()
+            setUserAddress('')
           }}>
           Disconnect Sui
         </Button>

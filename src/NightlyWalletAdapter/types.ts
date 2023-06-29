@@ -1,8 +1,5 @@
 import '@mysten/sui.js'
 import {
-  ExecuteTransactionRequestType,
-  SuiTransactionBlockResponseOptions,
-  TransactionBlock,
   SuiTransactionBlockResponse,
   SignedMessage
 } from '@mysten/sui.js'
