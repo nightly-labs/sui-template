@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
-import { devnetConnection, JsonRpcProvider, TransactionBlock } from '@mysten/sui.js'
+import { JsonRpcProvider, testnetConnection, TransactionBlock } from '@mysten/sui.js'
 import { useState } from 'react'
 import './App.css'
 import { RECIPIENT } from './utils/static'
@@ -11,11 +11,11 @@ import { SUI_DEVNET_CHAIN, WalletAccount } from '@mysten/wallet-standard'
 function App() {
   const [userAddress, setUserAddress] = useState<string>('')
   const [activeAccount, setActiveAccount] = useState<WalletAccount | undefined>()
+  const sui = new JsonRpcProvider(testnetConnection)
   const NightlySui = new NightlyWalletAdapter()
   const getAirdrop = async (address: string) => {
     try {
       if (!userAddress) return
-      const sui = new JsonRpcProvider(devnetConnection)
       const airdrop = await sui.requestSuiFromFaucet(address)
       console.log(airdrop)
     } catch (e) {
@@ -44,19 +44,17 @@ function App() {
           onClick={async () => {
             const value = (await NightlySui.connect()).accounts
             setActiveAccount(value[0])
-            console.log(value)
             setUserAddress(value[0].address)
             await getAirdrop(userAddress)
             // console.log(value.toString())
           }}>
-          Connect Sui
+          Connect Sui TESTNET
         </Button>
         <Button
           variant='contained'
           style={{ margin: 10 }}
           onClick={async () => {
             if (!userAddress) return
-            const sui = new JsonRpcProvider(devnetConnection)
             // const object = await sui.getAllCoins({ owner: userAddress })
             const tx = new TransactionBlock()
             const coin = tx.splitCoins(tx.gas, [tx.pure(100000)])
@@ -68,6 +66,7 @@ function App() {
             })
             const id = signetTxParse.digest
             console.log(id)
+            alert(`Transaction id: ${id}`)
           }}>
           Send test 0.001 SUI
         </Button>
@@ -99,6 +98,7 @@ function App() {
               account: activeAccount
             })
             console.log(signedMessage)
+            alert(`Signed message-> signature: ${signedMessage.signature}`)
           }}>
           Sign Message
         </Button>
